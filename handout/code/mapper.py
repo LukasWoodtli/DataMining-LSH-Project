@@ -6,9 +6,10 @@ import sys
 from collections import defaultdict
 
 
-NUM_OF_HASH_FUNCTIONS = 100
+NUM_OF_HASH_FUNCTIONS = 200 #1024
 MAX_HASH_VAL = 2**32 - 1
-ROWS_PER_BAND = 7
+ROWS_PER_BAND = 19
+
 
 if __name__ == "__main__":
     # VERY IMPORTANT:
@@ -21,10 +22,13 @@ if __name__ == "__main__":
     for i in range(NUM_OF_HASH_FUNCTIONS):
         a = np.random.random_integers(0, MAX_HASH_VAL)
         b = np.random.random_integers(0, MAX_HASH_VAL)
-        hash_functions.append(lambda x: (a * hash(x)  + b) % MAX_HASH_VAL)
+        hash_functions.append(lambda x: (a * hash(x) + b) % MAX_HASH_VAL)
 
-    shingles_in_video = {}
-    all_shingles = np.array([], dtype=int)
+    hash_bands_functions = []
+    for i in range(NUM_OF_HASH_FUNCTIONS):
+        a = np.random.random_integers(0, MAX_HASH_VAL)
+        b = np.random.random_integers(0, MAX_HASH_VAL)
+        hash_bands_functions.append(lambda band: sum([a * s + b for s in band]) % MAX_HASH_VAL)
 
     for line in sys.stdin:
         line = line.strip()
@@ -33,22 +37,27 @@ if __name__ == "__main__":
         video_id = int(line[6:15])
         shingles = np.fromstring(line[16:], dtype=int, sep=" ")
         # save shingles for each video
-        assert video_id not in shingles_in_video, "Same video ID apeared twice!"
-        shingles_in_video[video_id] = shingles
-
+        
+        shingles = frozenset(shingles)
         minhashes = []
-        for shingle in shingles: # TODO make sure every shingle apears only once
-            minhash = None
+        for shingle in shingles:
+            minhash = sys.maxint
             for hash_function in hash_functions:
                 newMinhash = hash_function(shingle)
-                if minhash == None or newMinhash < minhash:
-                    minhash = newMinhash
+                minhash = min(newMinhash, minhash)
             minhashes.append(minhash)
 
         lshashes = []
+        
         for i in range(0, len(minhashes), ROWS_PER_BAND): # what to do with last band?
             band = minhashes[i:i + ROWS_PER_BAND]
-            band = frozenset(band)
-            lshashes.append(hash(band))
+            band = hash_bands_functions[i/ROWS_PER_BAND](band)
+            lshashes.append(band)
 
-        print lshashes
+        for lshash in lshashes:
+            out_str = str(lshash)
+            out_str += "\t" + str(video_id)
+            out_str += "\t"
+            for shingle in shingles:
+                out_str += " " + str(shingle)
+        print out_str
