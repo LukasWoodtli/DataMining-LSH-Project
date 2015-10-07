@@ -1,0 +1,8 @@
+handout/code/pairs.txt
+
+handout/report/*.aux
+handout/report/*.log
+handout/report/*.out
+handout/report/*.synctex.gz
+
+handout/report/*.pdf
