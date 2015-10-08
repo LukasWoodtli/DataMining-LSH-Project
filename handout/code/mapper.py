@@ -3,8 +3,8 @@ import numpy as np
 import sys
 
 
-NUMBER_OF_MINHASH_HASHFUNCTIONS = 105
-ROWS_PER_BAND = 15
+NUMBER_OF_MINHASH_HASHFUNCTIONS = 100
+ROWS_PER_BAND = 10
 
 
 if __name__ == "__main__":

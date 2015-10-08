@@ -22,8 +22,8 @@ def print_duplicates(videos):
 
 
 def testFor90PercentSimilarity(shingleStringA, shingleStringB):
-    shinglesA = Set(np.fromstring(shingleStringA, sep=" "))
-    shinglesB = Set(np.fromstring(shingleStringB, sep=" "))
+    shinglesA = set(np.fromstring(shingleStringA, sep=" "))
+    shinglesB = set(np.fromstring(shingleStringB, sep=" "))
     similarity = float(len(shinglesA.intersection(shinglesB))) / float(len(shinglesA.union(shinglesB)))
     return similarity > 0.9
 
