@@ -1,44 +1,63 @@
 #!/local/anaconda/bin/python
-# IMPORTANT: leave the above line as is.
+
 
 import numpy as np
 import sys
 
 
 def print_duplicates(videos):
+    """
+    Prints all videos in the list once.
+    Input:
+    videos:     Unsorted list of videos, (doublings allowed)
+    """
+    result = []
     unique = np.unique(videos)
     for i in xrange(len(unique)):
+        # When only one video, at this point no output at all.
         for j in xrange(i + 1, len(unique)):
-            print "%d\t%d" % (min(unique[i], unique[j]),
-                              max(unique[i], unique[j]))
+            result.append( "%d\t%d" % (min(unique[i], unique[j]), #print 
+                              max(unique[i], unique[j]))) 
+    return result
+
+
+def testFor90PercentSimilarity(shingleStringA, shingleStringB):
+    shinglesA = Set(np.fromstring(shingleStringA, sep=" "))
+    shinglesB = Set(np.fromstring(shingleStringB, sep=" "))
+    similarity = float(len(shinglesA.intersection(shinglesB))) / float(len(shinglesA.union(shinglesB)))
+    return similarity > 0.9
+
 
 last_key = None
-last_shingles = None
-key_count = 0
-duplicates = []
+realDuplicates = dict()
+result = []
 
-for line in sys.stdin:
+for line in sys.stdin: 
     line = line.strip()
-    key, video_id, shingles = line.split("\t")
-    key = key.strip()
-    video_id = video_id.strip()
-    shingles = shingles.strip()
-    shingles = shingles.split(" ")
-    shingles = frozenset(shingles)
+    key, value = line.split("\t")
+    shingles, video_id = value.split("_")
 
     if last_key is None:
         last_key = key
-        last_shingles = shingles
-
+    
     if key == last_key:
-        #if shingles == last_shingles:
-            duplicates.append(int(video_id))
+        # Key the same as for previous element
+        for duplicateGroup in realDuplicates:
+            if testFor90PercentSimilarity(duplicateGroup, shingles):
+                realDuplicates[duplicateGroup].append(int(video_id))           
+        realDuplicates[shingles] = [int(video_id)]
     else:
         # Key changed (previous line was k=x, this line is k=y)
-        print_duplicates(duplicates)
-        duplicates = [int(video_id)]
+        for duplicateGroup in realDuplicates:
+            result += print_duplicates(realDuplicates[duplicateGroup])
+        realDuplicates.clear()
+        realDuplicates[shingles] = [int(video_id)]
         last_key = key
-        last_shingles = shingles
 
-if len(duplicates) > 0:
-    print_duplicates(duplicates)
+# also print the very last group
+for shingles in realDuplicates:
+    result += print_duplicates(realDuplicates[shingles])
+    
+# return all elements once by using set
+for i in set(result):
+    print i

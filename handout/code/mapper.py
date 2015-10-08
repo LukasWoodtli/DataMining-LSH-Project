@@ -1,63 +1,43 @@
 #!/local/anaconda/bin/python
-# IMPORTANT: leave the above line as is.
-
 import numpy as np
 import sys
-from collections import defaultdict
 
 
-NUM_OF_HASH_FUNCTIONS = 200 #1024
-MAX_HASH_VAL = 2**32 - 1
-ROWS_PER_BAND = 19
+NUMBER_OF_MINHASH_HASHFUNCTIONS = 105
+ROWS_PER_BAND = 15
 
 
 if __name__ == "__main__":
-    # VERY IMPORTANT:
-    # Make sure that each machine is using the
-    # same seed when generating random numbers for the hash functions.
+
+    # Make sure that each machine is using the same seed
+    # Using NUMBER_OF_HASHFUNCTIONS Hashfunctions. Represented by a and b.
     np.random.seed(seed=42)
-
-    # create hash functions
-    hash_functions = []
-    for i in range(NUM_OF_HASH_FUNCTIONS):
-        a = np.random.random_integers(0, MAX_HASH_VAL)
-        b = np.random.random_integers(0, MAX_HASH_VAL)
-        hash_functions.append(lambda x: (a * hash(x) + b) % MAX_HASH_VAL)
-
-    hash_bands_functions = []
-    for i in range(NUM_OF_HASH_FUNCTIONS):
-        a = np.random.random_integers(0, MAX_HASH_VAL)
-        b = np.random.random_integers(0, MAX_HASH_VAL)
-        hash_bands_functions.append(lambda band: sum([a * s + b for s in band]) % MAX_HASH_VAL)
-
+    minHashes = np.random.random_integers(0, 5000, size=(NUMBER_OF_MINHASH_HASHFUNCTIONS,2))
+    
+  
     for line in sys.stdin:
         line = line.strip()
+        video_id = line[6:15]
+        shingles = frozenset(np.fromstring(line[16:], sep=" "))
 
-        # get video id and shingles for video
-        video_id = int(line[6:15])
-        shingles = np.fromstring(line[16:], dtype=int, sep=" ")
-        # save shingles for each video
-        
-        shingles = frozenset(shingles)
-        minhashes = []
+        # Create the signature
+        # Use the hashfunctions as shown in II-47 to create signature of the file
+        # But for only one column and instead of checking for a one in each row, 
+        # we only calc for the shingles available in the list since its number
+        # would equal its rownumber in the matrix.
+        signature = np.full(NUMBER_OF_MINHASH_HASHFUNCTIONS, 20000)
         for shingle in shingles:
-            minhash = sys.maxint
-            for hash_function in hash_functions:
-                newMinhash = hash_function(shingle)
-                minhash = min(newMinhash, minhash)
-            minhashes.append(minhash)
+            for i,hash in enumerate(minHashes):
+                hashed = (hash[0]*shingle + hash[1]) % 20000
+                if hashed < signature[i]:
+                    signature[i] = hashed
 
-        lshashes = []
-        
-        for i in range(0, len(minhashes), ROWS_PER_BAND): # what to do with last band?
-            band = minhashes[i:i + ROWS_PER_BAND]
-            band = hash_bands_functions[i/ROWS_PER_BAND](band)
-            lshashes.append(band)
-
-        for lshash in lshashes:
-            out_str = str(lshash)
-            out_str += "\t" + str(video_id)
-            out_str += "\t"
-            for shingle in shingles:
-                out_str += " " + str(shingle)
-        print out_str
+        # Emit the bands as keys sothat related files are sorted togther
+        numBands = int(np.ceil(signature.size / ROWS_PER_BAND))
+        for i in xrange (0, numBands):
+             print( 
+                # Key = Bandnumber + Signatur of Band
+                str(i) + "_" + "".join(str(int(x)).zfill(5) for x in signature[i*ROWS_PER_BAND: (i+1)*ROWS_PER_BAND]) + "\t" 
+                # Value = The shingles to filter in reducer + The VideoID
+                + line[16:] + "_" + video_id
+             ) 
