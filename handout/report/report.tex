@@ -18,7 +18,7 @@
 \renewcommand{\familydefault}{\sfdefault}
 
 \title{Data Mining: Learning from Large Data Sets - Fall Semester 2015}
-\author{member1@student.ethz.ch\\ member2@student.ethz.ch\\ member3@student.ethz.ch\\}
+\author{mwurm@student.ethz.ch\\ merkim@student.ethz.ch\\ lwoodtli@student.ethz.ch\\}
 \date{\today}
 
 \begin{document}
@@ -31,11 +31,45 @@ report should contain a maximum of 2 pages.
 
 \subsection{Problem Description}
 
+\subsection{Aproach of the Team}
+The team decided to develop the algorithms indiendantly in a first step.
+Afterwards the implementations were compared. So the details could be
+discussed and errors were eliminated.
+At the end the team decided which implementation should be improved for
+submission.
+
 \subsection{Environment}
+The runnig environment with a MapReduce framework was provided. So the
+Mapper and the Reducer were developed indipendantely and then submitted to
+the running environment.
 
 \subsubsection{Map}
 
+The Mapper does the main part of the work. It analyzes the shingles of the
+videos and submits potential douplicates.
+
+For that it uses a Locality Sensitive Hashing aproach.
+
+... Min Hashing ... LSH (bands) ....
+
+Resulting potential video pairs are sent to the Reducer. To improve the precision
+of the Reducer the shingles of the videos are also provided. So the reducer can
+do a real comparisons of the videos.
+
+But it's still important to have an optimal Mapper step. Missed potential douplicates
+(false negatives) and wrong potental douplicates (false positives) can ... the result.
+
+false negatives: They are never compared by the reducer and are missed totally.
+
+false positiver: The reducer needs to compare to much potential douplicates and is not
+efficient anymore.
+
+
+
+
 \subsubsection{Reduce}
+
+Comparison of potential douplicates for 90%???...
 
 
 \subsection{Improvement}
