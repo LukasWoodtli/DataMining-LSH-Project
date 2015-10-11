@@ -31,33 +31,33 @@
 
 \subsection{Problem Description}
 
-The goal of the project was to develop a programm that finds duplicate videos.
+The goal of the project was to develop a program that finds duplicate videos.
 The videos were provided as shingles in a text file. There was also a training
 set for the video data.
 The program needed to run on a Map Reduce environment and should be developed
 with a Locality Sensitive Hashing algorithm (LSH).
 
 
-\subsection{Aproach of the Team}
-The team decided that each member will develop the algorithm indiendantly in a first step.
+\subsection{Approach of the Team}
+The team decided that each member will develop the algorithm independently in a first step.
 Afterwards the implementations were compared. So the details could be
 discussed and errors were eliminated.
 At the end the team decided which implementation should be improved for
 submission.
 
 \subsection{Environment}
-The runnig environment with a Map Reduce framework was provided. So the
-Mapper and the Reducer were developed indipendantely and then submitted to
+The running environment with a Map Reduce framework was provided. So the
+Mapper and the Reducer were developed independently and then submitted to
 the running environment.
 
 \subsubsection{Map}
 
-The Mapper does the main part of the work. It analyzes the shingles of the
-videos and submits potential douplicates.
+The Mapper does the main part of the work. It analyses the shingles of the
+videos and submits potential duplicates.
 
 For that it uses a Locality Sensitive Hashing algorithm.
 
-In a first step the provided shingles of each video are minhashed.
+In a first step the provided shingles of each video are min-hashed.
 
 \begin{lstlisting}[language=Python]
 
@@ -74,19 +74,19 @@ for line in sys.stdin:
 				signature[i] = hashed
 \end{lstlisting}
 
-As a second step the Minhashes are divided in bands by a Locality Sensitive Hash
+As a second step the Min-hashes are divided in bands by a Locality Sensitive Hash
 algorithm.
 
 Resulting potential video pairs are sent to the Reducer. To improve the precision
 of the Reducer the shingles of the videos are also provided. So the reducer can
 do a real comparisons of the videos.
 
-But it's still important to have an optimal Mapper step. Missed potential douplicates
-(false negatives) and wrong potental douplicates (false positives) can weaken the result.
+But it's still important to have an optimal Mapper step. Missed potential duplicates
+(false negatives) and wrong potential duplicates (false positives) can weaken the result.
 
 \paragraph{false negatives:} They are never compared by the reducer and are missed totally.
 
-\paragraph{false positiver:} The reducer needs to compare to much potential douplicates and is not
+\paragraph{false positives:} The reducer needs to compare to much potential duplicates and is not
 efficient anymore.
 
 \subsubsection{Reduce}
@@ -98,7 +98,7 @@ But it introduces more work to the Reducer.
 \subsection{Improvement}
 
 To improve the the result there are two main parameters that can be tuned.
-One of them is the number of hash function to use for calculating the Minhashes.
+One of them is the number of hash function to use for calculating the Min-hashes.
 The other one is the number of rows in a band for the LSH algorithm.
 
 For this project the parameters were tuned by hand. But it would be possible to 
@@ -107,12 +107,12 @@ tune them automatically for some given test data.
 
 \subsection{Possible Improvement}
 
-To reduce the risc of outputting a video pair more than once there could be a final
+To reduce the risk of outputting a video pair more than once there could be a final
 step that compares the output of all Reducers and eliminates multiple same results.
 
 \subsection{Conclusion}
 
-This project shows that LSH is a nice aproach to find near duplicates in a large set
+This project shows that LSH is a nice approach to find near duplicates in a large set
 of videos. It can be simply developed in a Map Reduce environment.
 
 \end{document} 
