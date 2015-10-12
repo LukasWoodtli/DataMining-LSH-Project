@@ -52,10 +52,7 @@ the running environment.
 
 \subsubsection{Map}
 
-The Mapper does the main part of the work. It analyses the shingles of the
-videos and submits potential duplicates.
-
-For that it uses a Locality Sensitive Hashing algorithm.
+The Mapper uses a Locality Sensitive Hashing algorithm.
 
 In a first step the provided shingles of each video are min-hashed.
 
@@ -74,32 +71,26 @@ for line in sys.stdin:
 				signature[i] = hashed
 \end{lstlisting}
 
-As a second step the Min-hashes are divided in bands by a Locality Sensitive Hash
-algorithm.
+As a second step the Min-hashes are divided in bands by a Locality Sensitive Hash algorithm.
 
-Resulting potential video pairs are sent to the Reducer. To improve the precision
-of the Reducer the shingles of the videos are also provided. So the reducer can
-do a real comparisons of the videos.
-
-But it's still important to have an optimal Mapper step. Missed potential duplicates
-(false negatives) and wrong potential duplicates (false positives) can weaken the result.
-
-\paragraph{false negatives:} They are never compared by the reducer and are missed totally.
-
-\paragraph{false positives:} The reducer needs to compare to much potential duplicates and is not
-efficient anymore.
+The resulting Min-hashes per band and video are sent to the Reducer together with the original shingles and sorted by band-id and min-hash value. The original shingles were provided in order to allow the Reducer a real comparison of the potential duplicates.
 
 \subsubsection{Reduce}
 
-The original shingles are sent to the Reducer together with the hashes. So the Reduces
-compares all potential pairs for 90\% equality. This reduces the risk of false positives.
-But it introduces more work to the Reducer. 
+The Reducer iterates over the sorted input and checks for duplicate min-hash values which indicates potential duplicates. To decrease the amount of false positives the Reducer compares in an additional step all shingles of the potential pairs for 90\% equality. This real comparison of the videos allows an improvement of the precision. But it also introduces more work to the Reducer. 
+Therefore it is very important to have an optimal Mapper step which makes sure that no duplicates are missed (leads to false negatives) and in the mean time does not provide too many false positives which need to be sorted out by the Reducer (decrease of efficiency).
+
+This shows us that it is really important to choose the right values for the two main parameters of the Map step.
+
+One of them is the number of hash function to use for calculating the Min-hashes.
+
+The other one is the number of rows in a band for the LSH algorithm.
+
 
 \subsection{Improvement}
 
-To improve the the result there are two main parameters that can be tuned.
-One of them is the number of hash function to use for calculating the Min-hashes.
-The other one is the number of rows in a band for the LSH algorithm.
+Missed potential duplicates
+(false negatives) and wrong potential duplicates (false positives) can weaken the result. To improve the result the two main parameters described above can be tuned.
 
 For this project the parameters were tuned by hand. But it would be possible to 
 tune them automatically for some given test data.
@@ -108,7 +99,7 @@ tune them automatically for some given test data.
 \subsection{Possible Improvement}
 
 To reduce the risk of outputting a video pair more than once there could be a final
-step that compares the output of all Reducers and eliminates multiple same results.
+step that compares the output of all Reducers and eliminates video pairs that occur more than once. This comparison could be performed in an additional Reduce step.
 
 \subsection{Conclusion}
 
