@@ -82,7 +82,7 @@ The other one is the number of rows in a band for the LSH algorithm.
 
 \subsection{Improvement}
 
-Missed real duplicates (false negatives: $fn$) and wrong potential duplicates (false positives: $fp$) can weaken the result, which should at best, contain as many correct duplicates (true positives: $tp$) and deny any non-duplicates  (false negatives $fn$) as good as possible. The main keywords in this context are $\text{Precision}=\frac{tp}{tp+fp}$ and $\text{Recall}=\frac{tp}{tp+fn}$. These two quality charactersitics shall be as close to $1$ as possible.
+Missed real duplicates (false negatives: $fn$) and wrong potential duplicates (false positives: $fp$) can weaken the result, which should at best, contain as many correct duplicates (true positives: $tp$) and deny any non-duplicates  (false negatives: $fn$) as good as possible. The main keywords in this context are $\text{Precision}=\frac{tp}{tp+fp}$ and $\text{Recall}=\frac{tp}{tp+fn}$. These two quality charactersitics shall be as close to $1$ as possible.
 To improve the result the two main parameters described above can be tuned.
 The calculated probability for a hit, gives an first hint, where to search for the best configuration. The probability for a hit of two signatures within any of the bands is given as:
 \begin{equation*}P(\text{Colission in some band}) = 1 - (1-s^r)^b \end{equation*}
