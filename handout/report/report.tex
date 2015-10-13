@@ -89,11 +89,12 @@ The other one is the number of rows in a band for the LSH algorithm.
 
 \subsection{Improvement}
 
-Missed potential duplicates
-(false negatives) and wrong potential duplicates (false positives) can weaken the result. To improve the result the two main parameters described above can be tuned.
-
-For this project the parameters were tuned by hand. But it would be possible to 
-tune them automatically for some given test data.
+Missed potential duplicates (false negatives = fn) and wrong potential duplicates (false positives = fp) can weaken the result, which should at best, contain as many correct duplicates (true positives = tp) and correct denials (false negatives  = fn) as possible. The main keywords in this context are $\text{Precision}=\frac{tp}{tp+fp}$ and $\text{Recall}=\frac{tp}{tp+fn}$. These two quality charactersitics shall be as close to 1 as possible.
+To improve the result the two main parameters described above can be tuned.
+The calculated probability for a hit, gives an first hint, where to search for the best configuration. The 
+probability for a hit of two signatures within any of the bands is given as:
+\begin{equation*}P(\text{Colission in some band}) = 1 - (1-s^r)^b \end{equation*}
+Since we are after a colission rate of arround 99\%,  we decided to use 10 bands with 10 rows each. Given a similarity of 0.9, this leads to a probability of 98.6\% for a defacto collision between similar files.  
 
 
 \subsection{Possible Improvement}
